@@ -32,6 +32,29 @@ export async function getWeather(view = 'hoy', city = DEFAULT_CITY) {
   return buildItems(view, data);
 }
 
+// Busca ciudades que coincidan con lo que el usuario escribe.
+// Usa el endpoint de autocompletado de WeatherAPI: /v1/search.json
+export async function searchCities(query) {
+  if (!query || query.trim().length < 2) return [];
+
+  const params = new URLSearchParams({ key: API_KEY ?? '', q: query.trim() });
+  const res = await fetch(`https://api.weatherapi.com/v1/search.json?${params.toString()}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(`WeatherAPI ${res.status}: no se pudo buscar la ciudad`);
+  }
+
+  return (Array.isArray(data) ? data : []).map((place) => ({
+    id: place.id,
+    name: place.name,
+    region: place.region,
+    country: place.country,
+    label: [place.name, place.region, place.country].filter(Boolean).join(', '),
+    query: `${place.lat},${place.lon}`,
+  }));
+}
+
 function buildItems(view, data) {
   switch (view) {
     case 'hoy':
