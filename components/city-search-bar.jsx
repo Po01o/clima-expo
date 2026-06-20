@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
 
 export function CitySearchBar() {
-  const { city, setCity } = useCity();
+  const { cityName, setCity, setCityName } = useCity();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
 
@@ -43,6 +43,7 @@ export function CitySearchBar() {
 
   function selectPlace(place) {
     setCity(place.query);
+    setCityName([place.name, place.region].filter(Boolean).join(', '));
     setQuery('');
     setResults([]);
   }
@@ -54,7 +55,7 @@ export function CitySearchBar() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder={`Ciudad actual: ${city}`}
+          placeholder={`Ciudad actual: ${cityName}`}
           placeholderTextColor={colors.icon}
           style={[styles.input, { color: colors.text }]}
           autoCorrect={false}
