@@ -13,8 +13,8 @@ function detailIcon(label: string): keyof typeof Ionicons.glyphMap {
   if (l.includes('humedad') || l.includes('lluvia') || l.includes('precipit')) return 'water-outline';
   if (l.includes('viento') || l.includes('ráfaga')) return 'speedometer-outline';
   if (l.includes('uv') || l.includes('índice uv')) return 'sunny-outline';
-  if (l.includes('salida') || l.includes('amanecer')) return 'sunrise-outline';
-  if (l.includes('puesta') || l.includes('ocaso')) return 'sunset-outline';
+  if (l.includes('salida') || l.includes('amanecer')) return 'partly-sunny-outline';
+  if (l.includes('puesta') || l.includes('ocaso')) return 'cloudy-night-outline';
   if (l.includes('luna') || l.includes('moon')) return 'moon-outline';
   if (l.includes('nieve') || l.includes('granizo')) return 'snow-outline';
   return 'information-circle-outline';

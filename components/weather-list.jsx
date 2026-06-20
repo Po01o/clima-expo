@@ -26,7 +26,7 @@ const VIEW_META = {
   horas: {
     icon: 'time-outline',
     title: 'Por hora',
-    subtitle: 'Clima hora por hora del día de hoy',
+    subtitle: 'Clima por las proximas 24 horas',
   },
   astronomia: {
     icon: 'moon-outline',
