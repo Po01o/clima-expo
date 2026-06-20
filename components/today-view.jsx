@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 function formatTime(lastUpdated) {
   if (!lastUpdated) return '';
@@ -33,6 +33,7 @@ export function TodayView() {
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   function load(active = { current: true }) {
@@ -49,6 +50,19 @@ export function TodayView() {
     load(active);
     return () => { active.current = false; };
   }, [city]);
+
+  async function onRefresh() {
+    setRefreshing(true);
+    setError(null);
+    try {
+      const d = await getTodayData(city);
+      setData(d);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -85,7 +99,18 @@ export function TodayView() {
   ];
 
   return (
-    <View style={styles.wrapper}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.wrapper}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[colors.tint]}
+          tintColor={colors.tint}
+        />
+      }
+    >
       <View style={[styles.heroCard, { backgroundColor: cond.bg }]}>
         {current.condition.icon ? (
           <Image source={current.condition.icon} style={styles.heroIcon} contentFit="contain" />
@@ -159,7 +184,7 @@ export function TodayView() {
           </Pressable>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -14,12 +14,32 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
+  View,
 } from 'react-native';
+
+const VIEW_META = {
+  pronostico: {
+    icon: 'calendar-outline',
+    title: 'Pronóstico de 5 días',
+    subtitle: 'Consulta el clima de los próximos días',
+  },
+  horas: {
+    icon: 'time-outline',
+    title: 'Por hora',
+    subtitle: 'Clima hora por hora del día de hoy',
+  },
+  astronomia: {
+    icon: 'moon-outline',
+    title: 'Astronomía',
+    subtitle: 'Datos de sol y luna por día',
+  },
+};
 
 export function WeatherList({ view }) {
   const { city } = useCity();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
+  const meta = VIEW_META[view] ?? VIEW_META.pronostico;
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +71,6 @@ export function WeatherList({ view }) {
     }
   }
 
-  // Filtra los resultados ya consultados a la API por título o condición.
   const filteredItems = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return items;
@@ -65,6 +84,9 @@ export function WeatherList({ view }) {
     return (
       <ThemedView style={styles.center}>
         <ActivityIndicator size="large" color={colors.tint} />
+        <ThemedText style={{ opacity: 0.6 }}>
+          Cargando {meta.title.toLowerCase()}...
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -72,8 +94,11 @@ export function WeatherList({ view }) {
   if (error) {
     return (
       <ThemedView style={styles.center}>
-        <Ionicons name="cloud-offline-outline" size={32} color={colors.icon} />
-        <ThemedText style={styles.errorText}>Error: {error}</ThemedText>
+        <Ionicons name="cloud-offline-outline" size={48} color={colors.icon} />
+        <ThemedText type="defaultSemiBold" style={{ textAlign: 'center' }}>
+          Sin conexión
+        </ThemedText>
+        <ThemedText style={[styles.errorText, { opacity: 0.6 }]}>{error}</ThemedText>
         <Pressable
           style={[styles.retryButton, { backgroundColor: colors.tint }]}
           onPress={onRefresh}>
@@ -85,8 +110,30 @@ export function WeatherList({ view }) {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={[styles.searchRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Ionicons name="filter-outline" size={18} color={colors.icon} />
+      <View
+        style={[
+          styles.viewHeader,
+          { backgroundColor: colors.card, borderBottomColor: colors.border },
+        ]}>
+        <View style={[styles.iconBadge, { backgroundColor: colors.tint + '20' }]}>
+          <Ionicons name={meta.icon} size={26} color={colors.tint} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <ThemedText type="defaultSemiBold" style={styles.headerTitle}>
+            {meta.title}
+          </ThemedText>
+          <ThemedText style={[styles.headerSubtitle, { color: colors.icon }]}>
+            {meta.subtitle}
+          </ThemedText>
+        </View>
+      </View>
+
+      <ThemedView
+        style={[
+          styles.searchRow,
+          { backgroundColor: colors.card, borderColor: colors.border },
+        ]}>
+        <Ionicons name="search-outline" size={18} color={colors.icon} />
         <TextInput
           value={search}
           onChangeText={setSearch}
@@ -112,11 +159,30 @@ export function WeatherList({ view }) {
 
       {items.length === 0 ? (
         <ThemedView style={styles.center}>
-          <ThemedText>No hay datos para mostrar.</ThemedText>
+          <Ionicons
+            name={meta.icon}
+            size={48}
+            color={colors.icon}
+            style={{ opacity: 0.35 }}
+          />
+          <ThemedText style={{ opacity: 0.6, textAlign: 'center' }}>
+            No hay datos disponibles.
+          </ThemedText>
         </ThemedView>
       ) : filteredItems.length === 0 ? (
         <ThemedView style={styles.center}>
-          <ThemedText>No hay resultados para &quot;{search}&quot;.</ThemedText>
+          <Ionicons
+            name="search-outline"
+            size={40}
+            color={colors.icon}
+            style={{ opacity: 0.35 }}
+          />
+          <ThemedText style={{ opacity: 0.6, textAlign: 'center' }}>
+            Sin resultados para &quot;{search}&quot;
+          </ThemedText>
+          <Pressable onPress={() => setSearch('')} hitSlop={10}>
+            <ThemedText style={{ color: colors.tint }}>Limpiar búsqueda</ThemedText>
+          </Pressable>
         </ThemedView>
       ) : (
         <FlatList
@@ -139,35 +205,57 @@ export function WeatherList({ view }) {
                   },
                 })
               }>
-              <ThemedView
+              <View
                 style={[
                   styles.card,
-                  { backgroundColor: colors.card, borderColor: colors.border },
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                    borderLeftColor: colors.tint,
+                  },
                 ]}>
-                <ThemedView style={styles.row}>
+                <View style={styles.row}>
                   {item.icon ? (
                     <Image source={item.icon} style={styles.icon} contentFit="contain" />
                   ) : (
-                    <Ionicons name="moon-outline" size={32} color={colors.tint} />
+                    <View
+                      style={[
+                        styles.iconFallback,
+                        { backgroundColor: colors.tint + '15' },
+                      ]}>
+                      <Ionicons name="moon-outline" size={24} color={colors.tint} />
+                    </View>
                   )}
-                  <ThemedView style={styles.texts}>
-                    <ThemedText type="subtitle" numberOfLines={1} style={styles.title}>
+                  <View style={styles.texts}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      numberOfLines={1}
+                      style={styles.itemTitle}>
                       {item.title}
                     </ThemedText>
                     {item.subtitle ? (
-                      <ThemedText numberOfLines={1} style={{ opacity: 0.75 }}>
+                      <ThemedText
+                        numberOfLines={1}
+                        style={{ opacity: 0.6, fontSize: 13 }}>
                         {item.subtitle}
                       </ThemedText>
                     ) : null}
-                  </ThemedView>
+                  </View>
                   {item.temp ? (
-                    <ThemedText type="defaultSemiBold" style={{ color: colors.accent, fontSize: 18 }}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={{ color: colors.accent, fontSize: 18 }}>
                       {item.temp}
                     </ThemedText>
                   ) : null}
-                  <Ionicons name="chevron-forward" size={18} color={colors.icon} />
-                </ThemedView>
-              </ThemedView>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={colors.icon}
+                    style={{ opacity: 0.5 }}
+                  />
+                </View>
+              </View>
             </Pressable>
           )}
         />
@@ -178,6 +266,23 @@ export function WeatherList({ view }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  viewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  iconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: { fontSize: 16 },
+  headerSubtitle: { fontSize: 12, opacity: 0.7, marginTop: 1 },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -190,12 +295,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   searchInput: { flex: 1, fontSize: 14 },
-  list: { padding: 12, gap: 12 },
+  list: { padding: 12, gap: 10 },
   card: {
-    gap: 8,
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    padding: 16,
+    borderLeftWidth: 4,
+    padding: 14,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -203,11 +308,29 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  icon: { width: 42, height: 42 },
-  texts: { flex: 1, gap: 2 },
-  title: { marginTop: 0 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10, padding: 20 },
-  errorText: { textAlign: 'center' },
-  retryButton: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10 },
+  icon: { width: 44, height: 44 },
+  iconFallback: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  texts: { flex: 1, gap: 3 },
+  itemTitle: { fontSize: 15 },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    padding: 24,
+  },
+  errorText: { textAlign: 'center', fontSize: 13 },
+  retryButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginTop: 4,
+  },
   retryText: { color: '#fff', fontWeight: '600' },
 });
