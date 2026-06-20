@@ -90,10 +90,21 @@ export function WeatherList({ view }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Buscar por día, hora o condición..."
+          placeholder={
+            view === 'horas'
+              ? 'Filtrar por hora o condición...'
+              : view === 'astronomia'
+              ? 'Filtrar días...'
+              : 'Filtrar días...'
+          }
           placeholderTextColor={colors.icon}
           style={[styles.searchInput, { color: colors.text }]}
         />
+        {search.length > 0 ? (
+          <Pressable onPress={() => setSearch('')} hitSlop={10}>
+            <Ionicons name="close-circle" size={18} color={colors.icon} />
+          </Pressable>
+        ) : null}
         <Pressable onPress={onRefresh} hitSlop={10}>
           <Ionicons name="refresh-outline" size={20} color={colors.tint} />
         </Pressable>
@@ -182,9 +193,14 @@ const styles = StyleSheet.create({
   list: { padding: 12, gap: 12 },
   card: {
     gap: 8,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    padding: 14,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   icon: { width: 42, height: 42 },

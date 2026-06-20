@@ -1,17 +1,20 @@
 import { CitySearchBar } from '@/components/city-search-bar';
+import { TodayView } from '@/components/today-view';
 import { ThemedView } from '@/components/themed-view';
-import { WeatherList } from '@/components/weather-list';
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 export default function TodayScreen() {
   return (
     <ThemedView style={styles.container}>
       <CitySearchBar />
-      <WeatherList view="hoy" />
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <TodayView />
+      </ScrollView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  scroll: { paddingTop: 12 },
 });

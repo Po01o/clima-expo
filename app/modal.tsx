@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -20,6 +20,7 @@ export default function ModalScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <Stack.Screen options={{ title: title || 'Detalle' }} />
       {icon ? <Image source={icon} style={styles.icon} contentFit="contain" /> : null}
       <ThemedText type="title">{title}</ThemedText>
       {subtitle ? <ThemedText style={styles.subtitle}>{subtitle}</ThemedText> : null}

@@ -32,6 +32,44 @@ export async function getWeather(view = 'hoy', city = DEFAULT_CITY) {
   return buildItems(view, data);
 }
 
+export async function getTodayData(city = DEFAULT_CITY) {
+  const data = await fetchForecast(city);
+  return {
+    location: { name: data.location.name, region: data.location.region },
+    current: {
+      temp_c: data.current.temp_c,
+      feelslike_c: data.current.feelslike_c,
+      humidity: data.current.humidity,
+      wind_kph: data.current.wind_kph,
+      uv: data.current.uv,
+      condition: {
+        text: data.current.condition.text,
+        icon: `https:${data.current.condition.icon}`,
+        code: data.current.condition.code,
+      },
+      is_day: data.current.is_day,
+      last_updated: data.current.last_updated,
+    },
+    forecast: data.forecast.forecastday.map((day) => ({
+      id: day.date,
+      title: formatDay(day.date),
+      maxtemp_c: day.day.maxtemp_c,
+      mintemp_c: day.day.mintemp_c,
+      condition: {
+        text: day.day.condition.text,
+        icon: `https:${day.day.condition.icon}`,
+        code: day.day.condition.code,
+      },
+      details: [
+        { label: 'Máxima', value: `${Math.round(day.day.maxtemp_c)}°C` },
+        { label: 'Mínima', value: `${Math.round(day.day.mintemp_c)}°C` },
+        { label: 'Prob. de lluvia', value: `${day.day.daily_chance_of_rain}%` },
+        { label: 'Humedad', value: `${day.day.avghumidity}%` },
+      ],
+    })),
+  };
+}
+
 // Busca ciudades que coincidan con lo que el usuario escribe.
 // Usa el endpoint de autocompletado de WeatherAPI: /v1/search.json
 export async function searchCities(query) {
